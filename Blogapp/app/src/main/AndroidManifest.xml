@@ -12,6 +12,9 @@
         android:theme="@style/Theme.Blogapp"
         tools:targetApi="31">
         <activity
+            android:name=".Navhome"
+            android:exported="false" />
+        <activity
             android:name=".Home"
             android:exported="false" />
         <activity
@@ -26,7 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Register"
             android:exported="false" />

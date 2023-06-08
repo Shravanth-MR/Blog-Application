@@ -11,6 +11,12 @@
         android:layout_height="wrap_content"
         android:hint="Enter Username" />
 
+    <EditText
+        android:id="@+id/titleEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Title" />
+
     <Button
         android:id="@+id/selectImageButton"
         android:layout_width="wrap_content"

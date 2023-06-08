@@ -51,7 +51,7 @@ class Register : AppCompatActivity() {
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     val user = auth.currentUser
-                    val intent = Intent(this@Register, Login::class.java)
+                    val intent = Intent(this@Register, Profile::class.java)
                     startActivity(intent)
 
                     Toast.makeText(baseContext,"Success",Toast.LENGTH_SHORT).show()

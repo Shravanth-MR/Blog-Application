@@ -22,6 +22,7 @@ class Profile : AppCompatActivity() {
     private lateinit var btnBrowse: Button
     private lateinit var btnUpload: Button
     private lateinit var usernameEditText: EditText
+    private lateinit var titleEditText: EditText
 
     private lateinit var storageRef: StorageReference
     private lateinit var uri: Uri
@@ -38,6 +39,7 @@ class Profile : AppCompatActivity() {
         btnBrowse = findViewById(R.id.selectImageButton)
         btnUpload = findViewById(R.id.saveButton)
         usernameEditText = findViewById(R.id.usernameEditText)
+        titleEditText = findViewById(R.id.titleEditText)
 
         galleryImageLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -71,8 +73,9 @@ class Profile : AppCompatActivity() {
 
     private fun uploadImage() {
         val username = usernameEditText.text.toString().trim()
+        val title = titleEditText.text.toString().trim()
 
-        if (uri != null && username.isNotEmpty()) {
+        if (uri != null && username.isNotEmpty() && title.isNotEmpty()) {
             val userId = FirebaseAuth.getInstance().currentUser?.uid
             if (userId != null) {
                 val imageRef = storageRef.child("images").child(System.currentTimeMillis().toString())
@@ -87,6 +90,7 @@ class Profile : AppCompatActivity() {
                                 val userImagesRef = db.collection("userProfile")
                                 val user = hashMapOf(
                                     "username" to username,
+                                    "title" to title,
                                     "image_url" to imageUrl
                                 )
 
@@ -110,7 +114,7 @@ class Profile : AppCompatActivity() {
                 Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
             }
         } else {
-            Toast.makeText(this, "Please enter a username and select an image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter a username, title, and select an image", Toast.LENGTH_SHORT).show()
         }
     }
 
