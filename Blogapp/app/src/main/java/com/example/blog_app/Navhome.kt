@@ -1,5 +1,6 @@
 package com.example.blog_app
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -29,7 +30,8 @@ class Navhome : AppCompatActivity() {
                 R.id.action_profile -> {
                     // Handle profile item selection
                     // For example, navigate to the ProfileFragment
-                    navigateToProfileFragment()
+                    val intent = Intent(this, Profpage::class.java)
+                    startActivity(intent)
                     true
                 }
                 else -> false
@@ -46,7 +48,7 @@ class Navhome : AppCompatActivity() {
         // Navigate to the ExploreFragment
     }
 
-    private fun navigateToProfileFragment() {
-        // Navigate to the ProfileFragment
-    }
+//    private fun navigateToProfileFragment() {
+//        // Navigate to the ProfileFragment
+//    }
 }
