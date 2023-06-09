@@ -24,9 +24,9 @@ class Home : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        profileButton = findViewById(R.id.profile_button)
         auth = Firebase.auth
         logoutButton = findViewById(R.id.logout_button)
-        profileButton = findViewById(R.id.profile_button)
 
         logoutButton.setOnClickListener {
             auth.signOut()
