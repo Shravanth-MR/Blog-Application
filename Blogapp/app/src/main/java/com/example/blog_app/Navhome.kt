@@ -1,10 +1,13 @@
 package com.example.blog_app
 
+
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -16,6 +19,16 @@ class Navhome : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navhome)
+
+        val createBlogButton: FloatingActionButton = findViewById(R.id.createBlogButton)
+        createBlogButton.setOnClickListener {
+            // Handle create blog button click here
+            // For example, show a toast message or perform any desired action
+//            Toast.makeText(this, "Create Blog button clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, Blogpost::class.java)
+            startActivity(intent)
+        }
+
 
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
         bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->

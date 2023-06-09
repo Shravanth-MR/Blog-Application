@@ -2,6 +2,7 @@ package com.example.blog_app
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -23,6 +24,12 @@ class Profpage : AppCompatActivity() {
         profileImageView = findViewById(R.id.profileImageView)
         usernameTextView = findViewById(R.id.usernameTextView)
         titleTextView = findViewById(R.id.titleTextView)
+        val leftArrowButton = findViewById<ImageButton>(R.id.leftArrowButton)
+
+
+        leftArrowButton.setOnClickListener {
+            finish()
+        }
 
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
