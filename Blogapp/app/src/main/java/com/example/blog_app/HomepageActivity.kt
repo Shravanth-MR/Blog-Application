@@ -54,6 +54,7 @@ class HomepageActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+
     private fun fetchData() {
         val db = FirebaseFirestore.getInstance()
         val blogsRef = db.collection("blogs")
@@ -63,15 +64,26 @@ class HomepageActivity : AppCompatActivity() {
                 val blogList = ArrayList<Blog>()
                 for (document in querySnapshot) {
                     val blog = document.toObject(Blog::class.java)
-                    blogList.add(blog)
+                    db.collection("userProfile").document(blog.userId).get()
+                        .addOnSuccessListener { userDocument ->
+                            if (userDocument != null && userDocument.exists()) {
+                                blog.username = userDocument.getString("username")
+                                blogList.add(blog)
+                                blogAdapter.submitList(blogList)
+                            } else {
+                                showToast("User document not found for ${blog.userId}")
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            showToast("Failed to fetch user data: ${exception.message}")
+                        }
                 }
-                blogAdapter.submitList(blogList)
             }
             .addOnFailureListener { exception ->
                 showToast("Failed to fetch blog data: ${exception.message}")
             }
         blogAdapter.setOnItemClickListener { blog ->
-            showToast("Clicked on blog: ${blog.title}")
+            showToast("Created by : ${blog.username}")
         }
     }
 }

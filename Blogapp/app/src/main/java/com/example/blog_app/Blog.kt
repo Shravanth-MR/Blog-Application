@@ -18,10 +18,10 @@ data class Blog(
     val description: String? = null,
     val timestamp: Date? = null,
     val image: String? = null,
-    val profileImageUrl: String = "",
-    val username: String = "",
+    val profileImageUrl: String? = "",
+    var username: String? = "",
     val imageUrl: String = ""
 ) {
     // No-argument constructor required for Firebase Firestore deserialization
-    constructor() : this("", "", "", "", null, "", "", "", "")
+//    constructor() : this("", "", "", "", null, "", "", "", "")
 }
