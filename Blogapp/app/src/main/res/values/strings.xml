@@ -6,6 +6,8 @@
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="left_arrow">Left Arrow</string>
+    <string name="add_blog">Add Blog</string>
+
 
 
 </resources>

@@ -12,6 +12,15 @@
         android:theme="@style/Theme.Blogapp"
         tools:targetApi="31">
         <activity
+            android:name=".HomepageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BlogAdapter"
+            android:exported="false" />
+        <activity
+            android:name=".Blog"
+            android:exported="false" />
+        <activity
             android:name=".Blogpost"
             android:exported="false" />
         <activity
