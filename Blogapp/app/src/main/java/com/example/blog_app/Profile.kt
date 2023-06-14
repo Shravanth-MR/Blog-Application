@@ -119,7 +119,7 @@ class Profile : AppCompatActivity() {
     }
 
     private fun navigateToHome() {
-        val intent = Intent(this, Home::class.java)
+        val intent = Intent(this, HomepageActivity::class.java)
         startActivity(intent)
         finish()
     }
