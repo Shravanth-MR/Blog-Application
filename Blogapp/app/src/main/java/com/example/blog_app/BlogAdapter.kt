@@ -48,6 +48,7 @@ class BlogAdapter : ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallba
         private val descriptionTextView: TextView = itemView.findViewById(R.id.descriptionTextView)
 
 
+
         init {
             itemView.setOnClickListener {
                 val position = adapterPosition
@@ -91,12 +92,8 @@ class BlogAdapter : ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallba
                     blogImageView.visibility = View.VISIBLE
                 }
             }
+
         }
-
-
-
-
-
 
     }
 
@@ -110,4 +107,6 @@ class BlogAdapter : ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallba
             return oldItem == newItem
         }
     }
+
+
 }

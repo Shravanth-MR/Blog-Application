@@ -1,28 +1,29 @@
 package com.example.blog_app
 
-//import android.os.Bundle
-//import androidx.appcompat.app.AppCompatActivity
-//import androidx.recyclerview.widget.LinearLayoutManager
-//import androidx.recyclerview.widget.RecyclerView
-//import com.example.blog_app.R
-//import com.google.firebase.firestore.FirebaseFirestore
-//import com.google.firebase.firestore.Query
-
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.blog_app.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.ktx.Firebase
+
 
 class HomepageActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var blogAdapter: BlogAdapter
+    private lateinit var auth: FirebaseAuth
+    private lateinit var logoutButton: Button
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
@@ -32,11 +33,32 @@ class HomepageActivity : AppCompatActivity() {
         blogAdapter = BlogAdapter()
         recyclerView.adapter = blogAdapter
 
-        // Fetch blog data from Firestore
+        val addBlogButton = findViewById<FloatingActionButton>(R.id.addBlogButton)
+        addBlogButton.setOnClickListener {
+            val intent = Intent(this, Blogpost::class.java)
+            startActivity(intent)
+        }
+        auth = Firebase.auth
+        logoutButton = findViewById(R.id.logout_button)
+
+        logoutButton.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(this, Login::class.java)
+            startActivity(intent)
+            finish()
+        }
+        fetchData()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun fetchData() {
         val db = FirebaseFirestore.getInstance()
         val blogsRef = db.collection("blogs")
-
-        blogsRef.get()
+        blogsRef.orderBy("timestamp", Query.Direction.DESCENDING)
+            .get()
             .addOnSuccessListener { querySnapshot ->
                 val blogList = ArrayList<Blog>()
                 for (document in querySnapshot) {
@@ -46,27 +68,10 @@ class HomepageActivity : AppCompatActivity() {
                 blogAdapter.submitList(blogList)
             }
             .addOnFailureListener { exception ->
-                // Handle any errors that occurred while fetching data
                 showToast("Failed to fetch blog data: ${exception.message}")
             }
-
-        // Handle click on a blog item
         blogAdapter.setOnItemClickListener { blog ->
-            // Open the blog detail activity or perform any desired action
-            // You can access the blog object and its properties here
             showToast("Clicked on blog: ${blog.title}")
         }
-
-        // Add a new blog button click listener
-        val addBlogButton = findViewById<FloatingActionButton>(R.id.addBlogButton)
-        addBlogButton.setOnClickListener {
-            // Open the activity to add a new blog
-            val intent = Intent(this, Blogpost::class.java)
-            startActivity(intent)
-        }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

@@ -13,7 +13,7 @@ import java.util.Date
 //}
 data class Blog(
     val blogId: String? = null,
-    val userId: String? = null,
+    val userId: String= "",
     val title: String? = null,
     val description: String? = null,
     val timestamp: Date? = null,
