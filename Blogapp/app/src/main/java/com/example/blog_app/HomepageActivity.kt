@@ -41,6 +41,13 @@ class HomepageActivity : AppCompatActivity() {
         auth = Firebase.auth
         logoutButton = findViewById(R.id.logout_button)
 
+        val profileButton = findViewById<Button>(R.id.profileButton)
+
+        profileButton.setOnClickListener {
+            val intent = Intent(this, Profpage::class.java)
+            startActivity(intent)
+        }
+
         logoutButton.setOnClickListener {
             auth.signOut()
             val intent = Intent(this, Login::class.java)

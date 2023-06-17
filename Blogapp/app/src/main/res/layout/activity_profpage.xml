@@ -43,4 +43,19 @@
         android:textAppearance="?android:textAppearanceMedium"
         tools:text="Title" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/profileImageView"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:id="@+id/blogPostsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+        </LinearLayout>
+    </ScrollView>
+
 </LinearLayout>
