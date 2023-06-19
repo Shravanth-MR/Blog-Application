@@ -4,16 +4,21 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
+//import kotlin.coroutines.jvm.internal.CompletedContinuation.context
 
 
 class HomepageActivity : AppCompatActivity() {
@@ -71,10 +76,11 @@ class HomepageActivity : AppCompatActivity() {
                 val blogList = ArrayList<Blog>()
                 for (document in querySnapshot) {
                     val blog = document.toObject(Blog::class.java)
-                    db.collection("userProfile").document(blog.userId).get()
+                    db.collection("userProfile").document(blog.userId!!).get()
                         .addOnSuccessListener { userDocument ->
                             if (userDocument != null && userDocument.exists()) {
                                 blog.username = userDocument.getString("username")
+                                blog.profileImageUrl = userDocument.getString("image_url")
                                 blogList.add(blog)
                                 blogAdapter.submitList(blogList)
                             } else {
@@ -89,8 +95,16 @@ class HomepageActivity : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 showToast("Failed to fetch blog data: ${exception.message}")
             }
+//        blogAdapter.setOnItemClickListener { blog ->
+//            // Handle item click and display the full image and content
+//            val intent = Intent(this, BlogDetailsActivity::class.java)
+//            intent.putExtra("blog", blog)
+//            startActivity(intent)
+//            }
         blogAdapter.setOnItemClickListener { blog ->
-            showToast("Created by : ${blog.username}")
-        }
+           showToast("Created by : ${blog.username}")
+      }
     }
 }
+
+

@@ -49,6 +49,11 @@
         <activity
             android:name=".Register"
             android:exported="false" />
+        <activity
+            android:name="com.example.blog_app.BlogDetailsActivity"
+            android:label="Blog Details">
+        </activity>
+
     </application>
 
 </manifest>

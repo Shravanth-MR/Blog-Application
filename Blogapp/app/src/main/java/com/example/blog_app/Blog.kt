@@ -1,27 +1,45 @@
 package com.example.blog_app
 
+
+
+import android.os.Parcel
+import android.os.Parcelable
+import com.google.firebase.Timestamp
 import java.util.Date
 
-//import androidx.appcompat.app.AppCompatActivity
-//import android.os.Bundle
-//
-//class Blog : AppCompatActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_blog)
-//    }
-//}
+
 data class Blog(
-    val blogId: String? = null,
-    val userId: String= "",
+    val userId: String? = null,
     val title: String? = null,
     val description: String? = null,
     val timestamp: Date? = null,
     val image: String? = null,
-    val profileImageUrl: String? = "",
-    var username: String? = "",
-    val imageUrl: String = ""
-) {
-    // No-argument constructor required for Firebase Firestore deserialization
-//    constructor() : this("", "", "", "", null, "", "", "", "")
+    var username: String? = null,
+    var profileImageUrl: String? = null
+): Parcelable {
+    // Implement Parcelable methods
+    // ...
+
+    constructor(parcel: Parcel) : this(
+        // Read properties from parcel
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        // Write properties to parcel
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Blog> {
+        override fun createFromParcel(parcel: Parcel): Blog {
+            return Blog(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Blog?> {
+            return arrayOfNulls(size)
+        }
+    }
 }
+
