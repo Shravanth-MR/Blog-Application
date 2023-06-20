@@ -29,13 +29,10 @@ class HomepageActivity : AppCompatActivity() {
     private lateinit var logoutButton: Button
     private lateinit var searchButton: FloatingActionButton
 
-
-
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
-
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -56,9 +53,7 @@ class HomepageActivity : AppCompatActivity() {
             val intent = Intent(this, Profpage::class.java)
             startActivity(intent)
         }
-
         searchButton = findViewById(R.id.searchButton)
-
         searchButton.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
@@ -82,40 +77,47 @@ class HomepageActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
         val blogsRef = db.collection("blogs")
         blogsRef.orderBy("timestamp", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                val blogList = ArrayList<Blog>()
-                for (document in querySnapshot) {
-                    val blog = document.toObject(Blog::class.java)
-                    db.collection("userProfile").document(blog.userId!!).get()
-                        .addOnSuccessListener { userDocument ->
-                            if (userDocument != null && userDocument.exists()) {
-                                blog.username = userDocument.getString("username")
-                                blog.profileImageUrl = userDocument.getString("image_url")
-                                blogList.add(blog)
+            .addSnapshotListener { querySnapshot, error ->
+                if (error != null) {
+                    showToast("Failed to fetch blog data: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                if (querySnapshot != null) {
+                    val blogList = ArrayList<Blog>()
+                    for (document in querySnapshot) {
+                        val blog = document.toObject(Blog::class.java)
+                        db.collection("userProfile").document(blog.userId!!).get()
+                            .addOnCompleteListener { userTask ->
+                                if (userTask.isSuccessful) {
+                                    val userDocument = userTask.result
+                                    if (userDocument != null && userDocument.exists()) {
+                                        blog.username = userDocument.getString("username")
+                                        blog.profileImageUrl = userDocument.getString("image_url")
+                                        blogList.add(blog)
+                                    } else {
+                                        showToast("User document not found for ${blog.userId}")
+                                    }
+                                } else {
+                                    showToast("Failed to fetch user data: ${userTask.exception?.message}")
+                                }
+
+                                // Move the submitList() outside the loop
                                 blogAdapter.submitList(blogList)
-                            } else {
-                                showToast("User document not found for ${blog.userId}")
                             }
-                        }
-                        .addOnFailureListener { exception ->
-                            showToast("Failed to fetch user data: ${exception.message}")
-                        }
+                    }
                 }
             }
-            .addOnFailureListener { exception ->
-                showToast("Failed to fetch blog data: ${exception.message}")
-            }
-//        blogAdapter.setOnItemClickListener { blog ->
-//            // Handle item click and display the full image and content
-//            val intent = Intent(this, BlogDetailsActivity::class.java)
-//            intent.putExtra("blog", blog)
-//            startActivity(intent)
-//            }
+
+        // No need for addOnCompleteListener here
+
         blogAdapter.setOnItemClickListener { blog ->
-           showToast("Created by : ${blog.username}")
-      }
+            showToast("Created by: ${blog.username}")
+        }
     }
+
+
+
 }
 
 

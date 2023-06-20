@@ -12,6 +12,8 @@
     import com.bumptech.glide.Glide
     import com.example.blog_app.Blog
     import com.example.blog_app.R
+    import java.text.SimpleDateFormat
+    import java.util.Locale
 
     class BlogAdapter : ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallback()) {
 
@@ -47,8 +49,12 @@
                     .into(profileImageView)
 
                 usernameTextView.text = blog.username
-                timestampTextView.text = blog.timestamp.toString()
+
+                val timestamp = blog.timestamp?.let { SimpleDateFormat("MMM d, hh:mm a", Locale.getDefault()).format(it) }
+                timestampTextView.text = timestamp
+
                 titleTextView.text = blog.title
+
 
                 if (blog.image != null) {
                     Glide.with(itemView.context)
