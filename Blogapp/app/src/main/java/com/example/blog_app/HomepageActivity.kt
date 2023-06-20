@@ -27,11 +27,15 @@ class HomepageActivity : AppCompatActivity() {
     private lateinit var blogAdapter: BlogAdapter
     private lateinit var auth: FirebaseAuth
     private lateinit var logoutButton: Button
+    private lateinit var searchButton: FloatingActionButton
+
+
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
+
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -50,6 +54,13 @@ class HomepageActivity : AppCompatActivity() {
 
         profileButton.setOnClickListener {
             val intent = Intent(this, Profpage::class.java)
+            startActivity(intent)
+        }
+
+        searchButton = findViewById(R.id.searchButton)
+
+        searchButton.setOnClickListener {
+            val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
         }
 

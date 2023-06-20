@@ -41,6 +41,7 @@
         android:layout_marginTop="70dp"
         android:padding="5dp" />
 
+
     <Button
         android:id="@+id/profileButton"
         android:layout_width="wrap_content"
@@ -59,6 +60,16 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
         android:contentDescription="@string/add_blog" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/ic_explore"
+        android:tint="@android:color/white" />
+
 
 
 

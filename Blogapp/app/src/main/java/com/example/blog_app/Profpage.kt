@@ -1,5 +1,6 @@
 package com.example.blog_app
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -123,13 +124,33 @@ class Profpage : AppCompatActivity() {
                     val deleteButton = blogItemView.findViewById<Button>(R.id.deleteButton)
 
                     updateButton.setOnClickListener {
-                        // Handle update blog button click
-                        // Implement the logic to open the update blog screen for the selected blog
+//                        // Handle update blog button click
+//                        val blogId = document.id // Assuming document is the current blog document
+//
+//                        // Start the activity to update the blog, passing the blogId as an extra
+//                        val intent = Intent(this@Profpage, UpdateBlogActivity::class.java)
+//                        intent.putExtra("blogId", blogId)
+//                        startActivity(intent)
                     }
 
                     deleteButton.setOnClickListener {
                         // Handle delete blog button click
-                        // Implement the logic to delete the selected blog
+                        val blogId = document.id // Assuming document is the current blog document
+
+                        val db = FirebaseFirestore.getInstance()
+                        val blogsRef = db.collection("blogs")
+
+                        // Delete the blog from Firestore
+                        blogsRef.document(blogId)
+                            .delete()
+                            .addOnSuccessListener {
+                                // Blog deleted successfully, remove the blog item view from the layout
+                                blogPostsLayout.removeView(blogItemView)
+                            }
+                            .addOnFailureListener { error ->
+                                showToast("Failed to delete blog: ${error.message}", Toast.LENGTH_SHORT)
+                                Log.e("Profpage", "Failed to delete blog", error)
+                            }
                     }
 
                     // Add the blog item view to the blogPostsLayout
