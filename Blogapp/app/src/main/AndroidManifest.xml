@@ -37,9 +37,9 @@
         <activity
             android:name=".Navhome"
             android:exported="false" />
-        <activity
-            android:name=".Home"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".Home"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".Profile"
             android:exported="false" />
@@ -56,8 +56,11 @@
             android:name=".Register"
             android:exported="false" />
         <activity
-            android:name=".BlogDetailsActivity"
-            android:label="Blog Details" />
+            android:name="com.example.blog_app.UpdateBlogActivity"
+            android:label="Update Blog" />
+<!--        <activity-->
+<!--            android:name=".BlogDetailsActivity"-->
+<!--            android:label="Blog Details" />-->
     </application>
 
 </manifest>

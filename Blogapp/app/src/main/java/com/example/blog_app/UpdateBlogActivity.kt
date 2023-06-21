@@ -1,94 +1,134 @@
-//package com.example.blog_app
-//
-//
-//import android.os.Bundle
-//import android.widget.Toast
-//import androidx.appcompat.app.AppCompatActivity
-//import com.bumptech.glide.Glide
-//import com.google.firebase.firestore.FirebaseFirestore
-////import kotlinx.android.synthetic.main.activity_update_blog.*
-//
-//class UpdateBlogActivity : AppCompatActivity() {
-//    private lateinit var blogId: String
-//    private lateinit var blog: Blog
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_update_blog)
-//
-//        // Get the blogId passed from the previous activity
-//        blogId = intent.getStringExtra("blogId") ?: ""
-//
-//        // Load the blog details for editing
-//        loadBlogDetails()
-//
-//        // Handle update button click
-//        updateButton1.setOnClickListener {
-//            updateBlog()
-//        }
-//    }
-//
-//    private fun loadBlogDetails() {
-//        // Retrieve the blog document based on the blogId
-//        val db = FirebaseFirestore.getInstance()
-//        val blogRef = db.collection("blogs").document(blogId)
-//
-//        blogRef.get()
-//            .addOnSuccessListener { documentSnapshot ->
-//                if (documentSnapshot.exists()) {
-//                    blog = documentSnapshot.toObject(Blog::class.java)
-//                    blog?.let {
-//                        // Set the existing blog details in the UI for editing
-//                        editTextTitle.setText(it.title)
-//                        editTextContent.setText(it.description)
-//                        // Load and display the blog image using Glide or Picasso
-//                        if (!it.image.isNullOrEmpty()) {
-//                            Glide.with(this)
-//                                .load(it.image)
-//                                .placeholder(R.drawable.placeholder_image)
-//                                .into(imageView)
-//                        }
-//                        // Set other fields if available
-//                    }
-//                } else {
-//                    // Blog document not found
-//                    showToast("Blog not found", Toast.LENGTH_SHORT)
-//                    finish()
-//                }
-//            }
-//            .addOnFailureListener { error ->
-//                showToast("Failed to retrieve blog details: ${error.message}", Toast.LENGTH_SHORT)
-//                finish()
-//            }
-//    }
-//
-//    private fun updateBlog() {
-//        val title = editTextTitle.text.toString().trim()
-//        val description = editTextContent.text.toString().trim()
-//        val imageUrl = blog?.image // Retrieve the existing image URL or update it with the new image URL
-//
-//        // Perform validation on the input fields if required
-//
-//        // Update the blog document in Firestore
-//        val db = FirebaseFirestore.getInstance()
-//        val blogRef = db.collection("blogs").document(blogId)
-//
-//        blogRef.update(
-//            "title", title,
-//            "description", description,
-//            "image", imageUrl // Update the image URL field
-//            // Update other fields if required
-//        )
-//            .addOnSuccessListener {
-//                showToast("Blog updated successfully", Toast.LENGTH_SHORT)
-//                finish()
-//            }
-//            .addOnFailureListener { error ->
-//                showToast("Failed to update blog: ${error.message}", Toast.LENGTH_SHORT)
-//            }
-//    }
-//
-//    private fun showToast(message: String, duration: Int) {
-//        Toast.makeText(this, message, duration).show()
-//    }
-//}
+package com.example.blog_app
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.provider.MediaStore
+import android.view.View
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+
+class UpdateBlogActivity : AppCompatActivity() {
+
+    private lateinit var titleEditText: EditText
+    private lateinit var descriptionEditText: EditText
+    private lateinit var updateButton: Button
+    private lateinit var cancelButton: Button
+    private lateinit var selectImageButton: ImageButton
+    private lateinit var selectedImageView: ImageView
+    private var selectedImageUri: Uri? = null
+    private lateinit var blogId: String
+
+    companion object {
+        private const val REQUEST_IMAGE_CHOOSER = 1
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_update_blog)
+
+        titleEditText = findViewById(R.id.titleEditText)
+        descriptionEditText = findViewById(R.id.descriptionEditText)
+        updateButton = findViewById(R.id.updateButton)
+        cancelButton = findViewById(R.id.cancelButton)
+        selectImageButton = findViewById(R.id.selectImageButton)
+        selectedImageView = findViewById(R.id.selectedImageView)
+
+        blogId = intent.getStringExtra("blogId") ?: ""
+
+        updateButton.setOnClickListener {
+            val updatedTitle = titleEditText.text.toString().trim()
+            val updatedDescription = descriptionEditText.text.toString().trim()
+
+            if (updatedTitle.isNotEmpty() && updatedDescription.isNotEmpty()) {
+                updateBlog(updatedTitle, updatedDescription)
+            } else {
+                Toast.makeText(this, "Please enter title and description", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        cancelButton.setOnClickListener {
+            finish()
+        }
+
+        selectImageButton.setOnClickListener {
+            openImageChooser()
+        }
+    }
+
+    private fun openImageChooser() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, REQUEST_IMAGE_CHOOSER)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_IMAGE_CHOOSER && resultCode == RESULT_OK) {
+            data?.data?.let { uri ->
+                selectedImageUri = uri
+                selectedImageView.visibility = View.VISIBLE
+                selectedImageView.setImageURI(uri)
+            }
+        }
+    }
+
+    private fun updateBlog(updatedTitle: String, updatedDescription: String) {
+        val db = FirebaseFirestore.getInstance()
+        val blogsRef = db.collection("blogs")
+
+        val updatedBlogData = hashMapOf(
+            "title" to updatedTitle,
+            "description" to updatedDescription
+            // Update other fields as needed
+        )
+
+        selectedImageUri?.let { imageUri ->
+            uploadImage(imageUri) { imageUrl ->
+                updatedBlogData["image"] = imageUrl
+                updateBlogData(blogsRef, updatedBlogData as HashMap<String, Any>)
+
+            }
+        } ?: run {
+            updateBlogData(blogsRef, updatedBlogData as HashMap<String, Any>)
+        }
+    }
+
+    private fun uploadImage(imageUri: Uri, onSuccess: (String) -> Unit) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("blog_images/${System.currentTimeMillis()}")
+
+        val uploadTask = imageRef.putFile(imageUri)
+        uploadTask.continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let { error ->
+                    throw error
+                }
+            }
+            imageRef.downloadUrl
+        }.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val downloadUri = task.result
+                onSuccess(downloadUri.toString())
+            } else {
+                // Handle image upload failure
+            }
+        }
+    }
+
+    private fun updateBlogData(blogsRef: CollectionReference, updatedBlogData: HashMap<String, Any>) {
+        blogsRef.document(blogId)
+            .update(updatedBlogData)
+            .addOnSuccessListener {
+                // Blog updated successfully
+                finish() // Finish the activity and go back to the previous screen
+            }
+            .addOnFailureListener { error ->
+                // Handle the failure to update the blog
+            }
+    }
+}

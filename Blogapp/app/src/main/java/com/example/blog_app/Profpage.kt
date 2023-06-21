@@ -125,12 +125,12 @@ class Profpage : AppCompatActivity() {
 
                     updateButton.setOnClickListener {
 //                        // Handle update blog button click
-//                        val blogId = document.id // Assuming document is the current blog document
+                        val blogId = document.id // Assuming document is the current blog document
 //
-//                        // Start the activity to update the blog, passing the blogId as an extra
-//                        val intent = Intent(this@Profpage, UpdateBlogActivity::class.java)
-//                        intent.putExtra("blogId", blogId)
-//                        startActivity(intent)
+                        // Start the activity to update the blog, passing the blogId as an extra
+                        val intent = Intent(this@Profpage, UpdateBlogActivity::class.java)
+                        intent.putExtra("blogId", blogId)
+                        startActivity(intent)
                     }
 
                     deleteButton.setOnClickListener {
