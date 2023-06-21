@@ -10,6 +10,7 @@
     import androidx.recyclerview.widget.ListAdapter
     import androidx.recyclerview.widget.RecyclerView
     import com.bumptech.glide.Glide
+    import com.bumptech.glide.request.RequestOptions
     import com.example.blog_app.Blog
     import com.example.blog_app.R
     import java.text.SimpleDateFormat
@@ -64,6 +65,32 @@
                 } else {
                     blogImageView.setImageDrawable(null)
                 }
+
+
+//                if (blog.image != null) {
+//                    Glide.with(itemView.context)
+//                        .load(blog.image)
+////                        .placeholder(R.drawable.placeholder_image)
+//                        .apply(RequestOptions().placeholder(R.drawable.placeholder_image))
+//                        .into(blogImageView)
+//                } else {
+////                    blogImageView.setImageDrawable(null)
+//                    blogImageView.visibility = View.GONE
+//                }
+
+
+//                if (blog.image?.isNotEmpty() == true) {
+//                    Glide.with(itemView.context)
+//                        .load(blog.image)
+//                        .apply(RequestOptions().placeholder(R.drawable.placeholder_image)) // Placeholder image while loading
+//                        .into(blogImageView)
+//                } else {
+//                    // No image available, so hide the ImageView
+//                    blogImageView.visibility = View.GONE
+//                }
+
+
+
 
                 itemView.setOnClickListener {
                     onItemClickListener?.invoke(blog)

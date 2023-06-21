@@ -116,8 +116,5 @@ class HomepageActivity : AppCompatActivity() {
         }
     }
 
-
-
 }
-
 

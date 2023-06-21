@@ -21,7 +21,7 @@
             android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="25sp"
-             />
+            />
 
         <Button
             android:id="@+id/logout_button"
@@ -31,7 +31,8 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:text="Log Out"
-             />
+            android:padding="5dp"
+            />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -39,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="689dp"
         android:layout_marginTop="70dp"
-        android:padding="5dp" />
+        android:padding="0dp" />
 
 
     <Button
@@ -49,7 +50,8 @@
         android:text="Profile"
         android:layout_above="@id/addBlogButton"
         android:layout_alignParentEnd="true"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp"
+        android:padding="5dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addBlogButton"
@@ -59,7 +61,8 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
-        android:contentDescription="@string/add_blog" />
+        android:contentDescription="@string/add_blog"
+        android:padding="5dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/searchButton"
@@ -68,10 +71,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="16dp"
         android:src="@drawable/ic_explore"
-        android:tint="@android:color/white" />
-
-
-
-
+        android:tint="@color/black"
+        android:padding="5dp" />
 
 </RelativeLayout>
