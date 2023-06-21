@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        android:layout_gravity="center_horizontal"
         android:text="Update Blog"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
@@ -26,11 +27,12 @@
         android:hint="Enter description"
         android:layout_marginTop="16dp" />
 
-    <ImageButton
+    <Button
         android:id="@+id/selectImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/placeholder_image"
+        android:text="Change Image"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp" />
 
     <ImageView
@@ -42,18 +44,29 @@
         android:visibility="gone"
         android:layout_marginTop="16dp" />
 
-    <Button
-        android:id="@+id/updateButton"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Update"
-        android:layout_marginTop="16dp" />
+        android:layout_below="@id/selectImageButton">
 
-    <Button
-        android:id="@+id/cancelButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:layout_marginTop="8dp" />
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Update"
+            android:layout_marginTop="16dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true" />
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_marginTop="16dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
 
 </LinearLayout>

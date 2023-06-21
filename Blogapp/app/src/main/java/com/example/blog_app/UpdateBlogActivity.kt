@@ -11,6 +11,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.squareup.picasso.Picasso
 
 class UpdateBlogActivity : AppCompatActivity() {
 
@@ -18,7 +19,7 @@ class UpdateBlogActivity : AppCompatActivity() {
     private lateinit var descriptionEditText: EditText
     private lateinit var updateButton: Button
     private lateinit var cancelButton: Button
-    private lateinit var selectImageButton: ImageButton
+    private lateinit var selectImageButton: Button
     private lateinit var selectedImageView: ImageView
     private var selectedImageUri: Uri? = null
     private lateinit var blogId: String
@@ -31,12 +32,31 @@ class UpdateBlogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_update_blog)
 
+        // Retrieve the passed data
+        val previousTitle = intent.getStringExtra("previousTitle")
+        val previousDescription = intent.getStringExtra("previousDescription")
+        val previousImageUrl = intent.getStringExtra("previousImageUrl")
+
         titleEditText = findViewById(R.id.titleEditText)
         descriptionEditText = findViewById(R.id.descriptionEditText)
         updateButton = findViewById(R.id.updateButton)
         cancelButton = findViewById(R.id.cancelButton)
         selectImageButton = findViewById(R.id.selectImageButton)
         selectedImageView = findViewById(R.id.selectedImageView)
+
+
+
+        // Set the retrieved data to the corresponding views
+        titleEditText.setText(previousTitle)
+        descriptionEditText.setText(previousDescription)
+
+        if (!previousImageUrl.isNullOrEmpty()) {
+            selectedImageView.visibility = View.VISIBLE
+            // Load and display the previous image using a library of your choice (e.g., Picasso, Glide)
+            Picasso.get().load(previousImageUrl).into(selectedImageView)
+        }
+
+
 
         blogId = intent.getStringExtra("blogId") ?: ""
 

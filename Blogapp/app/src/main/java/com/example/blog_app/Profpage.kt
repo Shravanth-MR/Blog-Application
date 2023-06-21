@@ -130,6 +130,12 @@ class Profpage : AppCompatActivity() {
                         // Start the activity to update the blog, passing the blogId as an extra
                         val intent = Intent(this@Profpage, UpdateBlogActivity::class.java)
                         intent.putExtra("blogId", blogId)
+
+                        // Pass the previous title, description, and image URL to UpdateBlogActivity
+                        intent.putExtra("previousTitle", blog.title)
+                        intent.putExtra("previousDescription", blog.description)
+                        intent.putExtra("previousImageUrl", blog.image)
+
                         startActivity(intent)
                     }
 
