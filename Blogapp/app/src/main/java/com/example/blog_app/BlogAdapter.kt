@@ -51,7 +51,7 @@
 
                 usernameTextView.text = blog.username
 
-                val timestamp = blog.timestamp?.let { SimpleDateFormat("MMM d, hh:mm a", Locale.getDefault()).format(it) }
+                val timestamp = blog.timestamp?.let { SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.US).format(it) }
                 timestampTextView.text = timestamp
 
                 titleTextView.text = blog.title

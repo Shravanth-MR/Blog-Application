@@ -26,7 +26,7 @@ class HomepageActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var blogAdapter: BlogAdapter
     private lateinit var auth: FirebaseAuth
-    private lateinit var logoutButton: Button
+//    private lateinit var logoutButton: Button
     private lateinit var searchButton: FloatingActionButton
 
     @SuppressLint("MissingInflatedId")
@@ -44,8 +44,8 @@ class HomepageActivity : AppCompatActivity() {
             val intent = Intent(this, Blogpost::class.java)
             startActivity(intent)
         }
-        auth = Firebase.auth
-        logoutButton = findViewById(R.id.logout_button)
+//        auth = Firebase.auth
+//        logoutButton = findViewById(R.id.logout_button)
 
         val profileButton = findViewById<Button>(R.id.profileButton)
 
@@ -59,12 +59,12 @@ class HomepageActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        logoutButton.setOnClickListener {
-            auth.signOut()
-            val intent = Intent(this, Login::class.java)
-            startActivity(intent)
-            finish()
-        }
+//        logoutButton.setOnClickListener {
+//            auth.signOut()
+//            val intent = Intent(this, Login::class.java)
+//            startActivity(intent)
+//            finish()
+//        }
         fetchData()
     }
 
