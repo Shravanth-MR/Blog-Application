@@ -43,3 +43,9 @@ data class Blog(
     }
 }
 
+
+class User {
+    var username: String? = null
+    var profileImageUrl: String? = null
+}
+

@@ -26,7 +26,7 @@ class HomepageActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var blogAdapter: BlogAdapter
     private lateinit var auth: FirebaseAuth
-//    private lateinit var logoutButton: Button
+    //    private lateinit var logoutButton: Button
     private lateinit var searchButton: FloatingActionButton
 
     @SuppressLint("MissingInflatedId")
@@ -76,6 +76,9 @@ class HomepageActivity : AppCompatActivity() {
     private fun fetchData() {
         val db = FirebaseFirestore.getInstance()
         val blogsRef = db.collection("blogs")
+        val userProfileRef = db.collection("userProfile")
+
+        // Listen for real-time updates on the blogs collection
         blogsRef.orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { querySnapshot, error ->
                 if (error != null) {
@@ -87,34 +90,38 @@ class HomepageActivity : AppCompatActivity() {
                     val blogList = ArrayList<Blog>()
                     for (document in querySnapshot) {
                         val blog = document.toObject(Blog::class.java)
-                        db.collection("userProfile").document(blog.userId!!).get()
-                            .addOnCompleteListener { userTask ->
-                                if (userTask.isSuccessful) {
-                                    val userDocument = userTask.result
-                                    if (userDocument != null && userDocument.exists()) {
-                                        blog.username = userDocument.getString("username")
-                                        blog.profileImageUrl = userDocument.getString("image_url")
-                                        blogList.add(blog)
-                                    } else {
-                                        showToast("User document not found for ${blog.userId}")
-                                    }
-                                } else {
-                                    showToast("Failed to fetch user data: ${userTask.exception?.message}")
-                                }
+                        blogList.add(blog)
 
-                                // Move the submitList() outside the loop
-                                blogAdapter.submitList(blogList)
+                        // Retrieve the user profile in real-time
+                        userProfileRef.document(blog.userId!!).addSnapshotListener { userDocument, userError ->
+                            if (userError != null) {
+                                showToast("Failed to fetch user data: ${userError.message}")
+                                return@addSnapshotListener
                             }
+
+                            if (userDocument != null && userDocument.exists()) {
+                                blog.username = userDocument.getString("username")
+                                blog.profileImageUrl = userDocument.getString("image_url")
+                                blogAdapter.notifyDataSetChanged()
+                            } else {
+                                showToast("User document not found for ${blog.userId}")
+                            }
+                        }
                     }
+
+                    // Submit the list outside the loop
+                    blogAdapter.submitList(blogList)
                 }
             }
 
-        // No need for addOnCompleteListener here
-
         blogAdapter.setOnItemClickListener { blog ->
             showToast("Created by: ${blog.username}")
+
+            // Open the blog post in a new activity
+            // val intent = Intent(this, BlogViewActivity::class.java)
+            // intent.putExtra("blog", blog)
+            // startActivity(intent)
         }
     }
 
 }
-
