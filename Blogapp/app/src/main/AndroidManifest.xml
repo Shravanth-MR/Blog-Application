@@ -58,7 +58,11 @@
         <activity
             android:name="com.example.blog_app.UpdateBlogActivity"
             android:label="Update Blog" />
-<!--        <activity-->
+        <activity
+            android:name=".UpdateProfileActivity"
+            android:label="Update Profile" />
+
+        <!--        <activity-->
 <!--            android:name=".BlogDetailsActivity"-->
 <!--            android:label="Blog Details" />-->
     </application>

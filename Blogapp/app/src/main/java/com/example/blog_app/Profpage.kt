@@ -1,28 +1,31 @@
 package com.example.blog_app
 
+//import com.google.firebase.Timestamp
+//import java.text.SimpleDateFormat
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.blog_app.Blog
-import com.example.blog_app.R
-//import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
-//import java.text.SimpleDateFormat
-import java.util.Locale
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.Query
-import java.util.Date
 import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class Profpage : AppCompatActivity() {
@@ -31,6 +34,9 @@ class Profpage : AppCompatActivity() {
     private lateinit var titleTextView: TextView
     private lateinit var blogPostsLayout: LinearLayout
     private lateinit var userId: String
+    private lateinit var updateProfileButton: Button
+    private lateinit var logoutButton: Button
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +46,43 @@ class Profpage : AppCompatActivity() {
         usernameTextView = findViewById(R.id.usernameTextView)
         titleTextView = findViewById(R.id.titleTextView)
         blogPostsLayout = findViewById(R.id.blogPostsLayout)
+        logoutButton = findViewById(R.id.logoutButton)
         val leftArrowButton = findViewById<ImageButton>(R.id.leftArrowButton)
 
         leftArrowButton.setOnClickListener {
+            finish()
+        }
+
+        updateProfileButton = findViewById(R.id.updateProfileButton)
+
+        updateProfileButton.setOnClickListener {
+            val username = usernameTextView.text.toString().trim()
+            val title = titleTextView.text.toString().trim()
+
+            val db = FirebaseFirestore.getInstance()
+            val userRef = db.collection("userProfile").document(userId)
+
+            userRef.get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val imageUrl = documentSnapshot.getString("image_url")
+
+                        val intent = Intent(this, UpdateProfileActivity::class.java)
+                        intent.putExtra("previousUsername", username)
+                        intent.putExtra("previousTitle", title)
+                        intent.putExtra("previousImageUrl", imageUrl)
+                        startActivity(intent)
+                    }
+                }
+        }
+
+
+
+        auth = Firebase.auth
+        logoutButton.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(this, Login::class.java)
+            startActivity(intent)
             finish()
         }
 
