@@ -56,8 +56,27 @@ class SearchActivity : AppCompatActivity() {
                 for (document in querySnapshot) {
                     val blog = document.toObject(Blog::class.java)
                     blogs.add(blog)
+                    val userId = blog.userId
+                    if (userId != null) {
+                        if (userId.isNotBlank()) {
+                            // Fetch and set user profile data for each non-null userId
+                            db.collection("userProfile").document(userId).get()
+                                .addOnSuccessListener { userProfileDoc ->
+                                    if (userProfileDoc.exists()) {
+                                        val username = userProfileDoc.getString("username")
+                                        val profileImageUrl = userProfileDoc.getString("image_url")
+                                        blog.username = username
+                                        blog.profileImageUrl = profileImageUrl
+                                        adapter.submitList(blogs)
+                                    }
+                                }
+                                .addOnFailureListener { error ->
+                                    // Handle the failure gracefully
+                                    Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    }
                 }
-                adapter.submitList(blogs)
             }
             .addOnFailureListener { error ->
                 // Handle the error gracefully
