@@ -1,6 +1,5 @@
 package com.example.blog_app
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -17,15 +16,17 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class Profpage : AppCompatActivity() {
     private lateinit var profileImageView: ImageView
@@ -36,7 +37,8 @@ class Profpage : AppCompatActivity() {
     private lateinit var updateProfileButton: Button
     private lateinit var logoutButton: Button
     private lateinit var auth: FirebaseAuth
-    private lateinit var userProfileListener: ListenerRegistration
+    private lateinit var userProfileListener: DocumentSnapshotListener
+    private lateinit var blogsListener: QuerySnapshotListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +61,7 @@ class Profpage : AppCompatActivity() {
             val username = usernameTextView.text.toString().trim()
             val title = titleTextView.text.toString().trim()
 
-            val db = FirebaseFirestore.getInstance()
+            val db = Firebase.firestore
             val userRef = db.collection("userProfile").document(userId)
 
             userRef.get()
@@ -87,67 +89,14 @@ class Profpage : AppCompatActivity() {
         userId = Firebase.auth.currentUser?.uid ?: ""
         if (userId.isNotEmpty()) {
             fetchUserBlogs()
-        }
-
-        retrieveUserProfile()
-        listenForUserProfileUpdates()
-    }
-
-    private fun retrieveUserProfile() {
-        val userId = Firebase.auth.currentUser?.uid
-        if (userId != null) {
-            val db = FirebaseFirestore.getInstance()
-            val userRef = db.collection("userProfile").document(userId)
-
-            userProfileListener = userRef.addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    showToast("Failed to retrieve user profile: ${error.message}", Toast.LENGTH_SHORT)
-                    Log.e("Profpage", "Failed to retrieve user profile", error)
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    val username = snapshot.getString("username")
-                    val title = snapshot.getString("title")
-                    val imageUrl = snapshot.getString("image_url")
-
-                    usernameTextView.text = username ?: ""
-                    titleTextView.text = title ?: ""
-
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Picasso.get().load(imageUrl).into(profileImageView)
-                    }
-                }
-            }
+            startListeningToUserProfile()
         }
     }
 
-    private fun listenForUserProfileUpdates() {
-        val userId = Firebase.auth.currentUser?.uid
-        if (userId != null) {
-            val db = FirebaseFirestore.getInstance()
-            val userRef = db.collection("userProfile").document(userId)
-
-            userProfileListener = userRef.addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.e("Profpage", "Failed to listen for user profile updates", error)
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    val username = snapshot.getString("username")
-                    val title = snapshot.getString("title")
-                    val imageUrl = snapshot.getString("image_url")
-
-                    usernameTextView.text = username ?: ""
-                    titleTextView.text = title ?: ""
-
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Picasso.get().load(imageUrl).into(profileImageView)
-                    }
-                }
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        stopListeningToUserProfile()
+        stopListeningToBlogs()
     }
 
     private fun showToast(message: String, duration: Int) {
@@ -155,81 +104,83 @@ class Profpage : AppCompatActivity() {
     }
 
     private fun fetchUserBlogs() {
-        val db = FirebaseFirestore.getInstance()
+        val db = Firebase.firestore
         val blogsRef = db.collection("blogs")
 
-        blogsRef.whereEqualTo("userId", userId)
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot) {
-                    val blog = document.toObject(Blog::class.java)
-                    val timestamp = blog.timestamp
-                    val blogItemView = LayoutInflater.from(this).inflate(R.layout.item_blog_post, blogPostsLayout, false)
+        blogsListener = QuerySnapshotListener(
+            blogsRef.whereEqualTo("userId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+        ) { querySnapshot: QuerySnapshot ->
+            blogPostsLayout.removeAllViews()
+            for (document in querySnapshot) {
+                val blog = document.toObject(Blog::class.java)
+                val timestamp = blog.timestamp
+                val blogItemView =
+                    LayoutInflater.from(this).inflate(R.layout.item_blog_post, blogPostsLayout, false)
 
-                    // Set blog details
-                    blogItemView.findViewById<TextView>(R.id.titleTextView).text = blog.title
-                    blogItemView.findViewById<TextView>(R.id.contentTextView).text = blog.description
-                    blogItemView.findViewById<TextView>(R.id.timestampTextView).text = formatDate(timestamp)
+                // Set blog details
+                blogItemView.findViewById<TextView>(R.id.titleTextView).text = blog.title
+                blogItemView.findViewById<TextView>(R.id.contentTextView).text = blog.description
+                blogItemView.findViewById<TextView>(R.id.timestampTextView).text = formatDate(timestamp)
 
-                    // Load and display the blog image using Glide
-                    val imageView = blogItemView.findViewById<ImageView>(R.id.imageView1)
-                    if (blog.image?.isNotEmpty() == true) {
-                        Glide.with(this)
-                            .load(blog.image)
-                            .apply(RequestOptions().placeholder(R.drawable.placeholder_image)) // Placeholder image while loading
-                            .into(imageView)
-                    } else {
-                        // No image available, so hide the ImageView
-                        imageView.visibility = View.GONE
-                    }
-
-                    // Set click listeners for update and delete buttons
-                    val updateButton = blogItemView.findViewById<Button>(R.id.updateButton)
-                    val deleteButton = blogItemView.findViewById<Button>(R.id.deleteButton)
-
-                    updateButton.setOnClickListener {
-                        val blogId = document.id // Assuming document is the current blog document
-
-                        // Start the activity to update the blog, passing the blogId as an extra
-                        val intent = Intent(this@Profpage, UpdateBlogActivity::class.java)
-                        intent.putExtra("blogId", blogId)
-
-                        // Pass the previous title, description, and image URL to UpdateBlogActivity
-                        intent.putExtra("previousTitle", blog.title)
-                        intent.putExtra("previousDescription", blog.description)
-                        intent.putExtra("previousImageUrl", blog.image)
-
-                        startActivity(intent)
-                    }
-
-                    deleteButton.setOnClickListener {
-                        val blogId = document.id // Assuming document is the current blog document
-
-                        val db = FirebaseFirestore.getInstance()
-                        val blogsRef = db.collection("blogs")
-
-                        // Delete the blog from Firestore
-                        blogsRef.document(blogId)
-                            .delete()
-                            .addOnSuccessListener {
-                                // Blog deleted successfully, remove the blog item view from the layout
-                                blogPostsLayout.removeView(blogItemView)
-                            }
-                            .addOnFailureListener { error ->
-                                showToast("Failed to delete blog: ${error.message}", Toast.LENGTH_SHORT)
-                                Log.e("Profpage", "Failed to delete blog", error)
-                            }
-                    }
-
-                    // Add the blog item view to the blogPostsLayout
-                    blogPostsLayout.addView(blogItemView)
+                // Load and display the blog image using Glide
+                val imageView = blogItemView.findViewById<ImageView>(R.id.imageView1)
+                if (blog.image?.isNotEmpty() == true) {
+                    Glide.with(this)
+                        .load(blog.image)
+                        .apply(RequestOptions().placeholder(R.drawable.placeholder_image)) // Placeholder image while loading
+                        .into(imageView)
+                } else {
+                    // No image available, so hide the ImageView
+                    imageView.visibility = View.GONE
                 }
+
+                // Set click listeners for update and delete buttons
+                val updateButton = blogItemView.findViewById<Button>(R.id.updateButton)
+                val deleteButton = blogItemView.findViewById<Button>(R.id.deleteButton)
+
+                updateButton.setOnClickListener {
+                    // Handle update blog button click
+                    val blogId = document.id // Assuming document is the current blog document
+
+                    // Start the activity to update the blog, passing the blogId as an extra
+                    val intent = Intent(this@Profpage, UpdateBlogActivity::class.java)
+                    intent.putExtra("blogId", blogId)
+
+                    // Pass the previous title, description, and image URL to UpdateBlogActivity
+                    intent.putExtra("previousTitle", blog.title)
+                    intent.putExtra("previousDescription", blog.description)
+                    intent.putExtra("previousImageUrl", blog.image)
+
+                    startActivity(intent)
+                }
+
+                deleteButton.setOnClickListener {
+                    // Handle delete blog button click
+                    val blogId = document.id // Assuming document is the current blog document
+
+                    val db = Firebase.firestore
+                    val blogsRef = db.collection("blogs")
+
+                    // Delete the blog from Firestore
+                    blogsRef.document(blogId)
+                        .delete()
+                        .addOnSuccessListener {
+                            // Blog deleted successfully, remove the blog item view from the layout
+                            blogPostsLayout.removeView(blogItemView)
+                        }
+                        .addOnFailureListener { error ->
+                            showToast("Failed to delete blog: ${error.message}", Toast.LENGTH_SHORT)
+                            Log.e("Profpage", "Failed to delete blog", error)
+                        }
+                }
+
+                // Add the blog item view to the blogPostsLayout
+                blogPostsLayout.addView(blogItemView)
             }
-            .addOnFailureListener { error ->
-                showToast("Failed to retrieve user blogs: ${error.message}", Toast.LENGTH_SHORT)
-                Log.e("Profpage", "Failed to retrieve user blogs", error)
-            }
+        }
+
+        blogsListener.startListening()
     }
 
     private fun formatDate(timestamp: Date?): String {
@@ -239,8 +190,82 @@ class Profpage : AppCompatActivity() {
         } ?: ""
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        userProfileListener.remove()
+    private fun startListeningToUserProfile() {
+        val db = Firebase.firestore
+        val userRef = db.collection("userProfile").document(userId)
+
+        userProfileListener = DocumentSnapshotListener(userRef) { documentSnapshot: DocumentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val username = documentSnapshot.getString("username")
+                val title = documentSnapshot.getString("title")
+                val imageUrl = documentSnapshot.getString("image_url")
+
+                usernameTextView.text = username ?: ""
+                titleTextView.text = title ?: ""
+
+                // Load profile image using Picasso or any other image loading library
+                if (!imageUrl.isNullOrEmpty()) {
+                    Picasso.get().load(imageUrl).into(profileImageView)
+                }
+            }
+        }
+
+        userProfileListener.startListening()
+    }
+
+    private fun stopListeningToUserProfile() {
+        userProfileListener.stopListening()
+    }
+
+    private fun stopListeningToBlogs() {
+        blogsListener.stopListening()
+    }
+
+    private inner class DocumentSnapshotListener(
+        private val documentReference: DocumentReference,
+        private val callback: (DocumentSnapshot) -> Unit
+    ) {
+        private var listenerRegistration: ListenerRegistration? = null
+
+        fun startListening() {
+            listenerRegistration = documentReference.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    showToast("Failed to retrieve user profile: ${error.message}", Toast.LENGTH_SHORT)
+                    Log.e("Profpage", "Failed to retrieve user profile", error)
+                } else if (snapshot != null && snapshot.exists()) {
+                    callback(snapshot)
+                }
+            }
+        }
+
+        fun stopListening() {
+            listenerRegistration?.remove()
+            listenerRegistration = null
+        }
+    }
+
+    private inner class QuerySnapshotListener(
+        private val query: Query,
+        private val callback: (QuerySnapshot) -> Unit
+    ) {
+        private var listenerRegistration: ListenerRegistration? = null
+
+        fun startListening() {
+            listenerRegistration = query.addSnapshotListener { querySnapshot, error ->
+                if (error != null) {
+                    showToast("Failed to retrieve user blogs: ${error.message}", Toast.LENGTH_SHORT)
+                    Log.e("Profpage", "Failed to retrieve user blogs", error)
+                } else {
+                    querySnapshot?.let {
+                        callback(it)
+                    }
+                }
+            }
+        }
+
+        fun stopListening() {
+            listenerRegistration?.remove()
+            listenerRegistration = null
+        }
     }
 }
