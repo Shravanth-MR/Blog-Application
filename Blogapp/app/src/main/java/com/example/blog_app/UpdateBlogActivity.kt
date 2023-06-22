@@ -136,6 +136,7 @@ class UpdateBlogActivity : AppCompatActivity() {
                 onSuccess(downloadUri.toString())
             } else {
                 // Handle image upload failure
+                Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -149,6 +150,7 @@ class UpdateBlogActivity : AppCompatActivity() {
             }
             .addOnFailureListener { error ->
                 // Handle the failure to update the blog
+                Toast.makeText(this, "Failed to update blog: ${error.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }
