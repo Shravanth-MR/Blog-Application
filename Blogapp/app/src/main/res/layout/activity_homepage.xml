@@ -1,6 +1,7 @@
 <!-- activity_homepage.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
@@ -8,19 +9,20 @@
         android:layout_width="412dp"
         android:layout_height="60dp"
         android:layout_marginTop="10dp"
-        >
+        android:layout_alignParentEnd="true">
+
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="130dp"
             android:layout_height="51dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:paddingVertical="2dp"
             android:text="@string/blogify"
             android:textAlignment="center"
             android:textColor="@color/black"
-            android:textSize="25sp"
+            android:textSize="30sp"
             />
 
 <!--        <Button-->
@@ -43,15 +45,21 @@
         android:padding="0dp" />
 
 
-    <Button
+    <ImageButton
         android:id="@+id/profileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Profile"
-        android:layout_above="@id/addBlogButton"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"
-        android:padding="5dp" />
+        android:layout_alignTop="@id/linearLayout2"
+        android:layout_alignEnd="@id/linearLayout2"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:padding="5dp"
+        android:background="@drawable/rounded_button_background"
+        android:src="@drawable/ic_profile_1"
+        android:text="@string/Profile"
+        android:contentDescription="@string/profile" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addBlogButton"
@@ -62,7 +70,8 @@
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
         android:contentDescription="@string/add_blog"
-        android:padding="5dp" />
+        android:padding="5dp"
+        tools:ignore="RelativeOverlap" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/searchButton"
@@ -73,6 +82,7 @@
         android:layout_marginBottom="15dp"
         android:padding="5dp"
         android:src="@drawable/ic_explore"
-        android:tint="@color/black" />
+        android:tint="@color/black"
+        android:contentDescription="@string/search" />
 
 </RelativeLayout>

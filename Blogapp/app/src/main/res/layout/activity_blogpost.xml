@@ -67,10 +67,15 @@
         <!-- Image View -->
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
             android:scaleType="centerCrop"
-            android:layout_below="@id/descriptionEditText" />
+
+            android:layout_below="@id/descriptionEditText"
+            tools:ignore="ObsoleteLayoutParam" />
+
+
 
     </LinearLayout>
 

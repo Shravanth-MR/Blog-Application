@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -47,7 +48,7 @@ class HomepageActivity : AppCompatActivity() {
 //        auth = Firebase.auth
 //        logoutButton = findViewById(R.id.logout_button)
 
-        val profileButton = findViewById<Button>(R.id.profileButton)
+        val profileButton = findViewById<ImageButton>(R.id.profileButton)
 
         profileButton.setOnClickListener {
             val intent = Intent(this, Profpage::class.java)
