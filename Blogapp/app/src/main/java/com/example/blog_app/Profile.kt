@@ -25,7 +25,7 @@ class Profile : AppCompatActivity() {
     private lateinit var titleEditText: EditText
 
     private lateinit var storageRef: StorageReference
-    private lateinit var uri: Uri
+    private var uri: Uri? = null
 
     private lateinit var galleryImageLauncher: ActivityResultLauncher<Intent>
 
@@ -75,24 +75,24 @@ class Profile : AppCompatActivity() {
         val username = usernameEditText.text.toString().trim()
         val title = titleEditText.text.toString().trim()
 
-        if (uri != null && username.isNotEmpty() && title.isNotEmpty()) {
-            val userId = FirebaseAuth.getInstance().currentUser?.uid
-            if (userId != null) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val db = FirebaseFirestore.getInstance()
+            val userImagesRef = db.collection("userProfile")
+            val user = hashMapOf(
+                "username" to username,
+                "title" to title
+            )
+
+            if (uri != null) {
                 val imageRef = storageRef.child("images").child(System.currentTimeMillis().toString())
 
-                imageRef.putFile(uri)
+                imageRef.putFile(uri!!)
                     .addOnSuccessListener { uploadTask ->
                         uploadTask.storage.downloadUrl
                             .addOnSuccessListener { downloadUri ->
                                 val imageUrl = downloadUri.toString()
-
-                                val db = FirebaseFirestore.getInstance()
-                                val userImagesRef = db.collection("userProfile")
-                                val user = hashMapOf(
-                                    "username" to username,
-                                    "title" to title,
-                                    "image_url" to imageUrl
-                                )
+                                user["image_url"] = imageUrl
 
                                 userImagesRef.document(userId).set(user)
                                     .addOnSuccessListener {
@@ -111,10 +111,18 @@ class Profile : AppCompatActivity() {
                         Toast.makeText(this, "Upload failed: ${error.message}", Toast.LENGTH_SHORT).show()
                     }
             } else {
-                Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+                // If uri is null, save the user data without the image_url
+                userImagesRef.document(userId).set(user)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Upload successful", Toast.LENGTH_SHORT).show()
+                        navigateToHome()
+                    }
+                    .addOnFailureListener { error ->
+                        Toast.makeText(this, "Upload failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
             }
         } else {
-            Toast.makeText(this, "Please enter a username, title, and select an image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -14,13 +14,12 @@
         <!-- Left Arrow Button -->
         <ImageButton
             android:id="@+id/leftArrowButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_back_arrow"
-            android:background="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/left_arrow"
-            android:padding="10dp"
-            android:layout_alignParentStart="true" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@null"
+            android:src="@drawable/ic_back_arrow" />
 
         <!-- Post Button -->
         <Button
@@ -33,50 +32,67 @@
     </RelativeLayout>
 
     <!-- Content Layout -->
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:layout_below="@id/topBar"
         android:padding="10dp">
 
-        <!-- Image Selection/Taking -->
-        <Button
-            android:id="@+id/imageButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/select_image"
-            android:onClick="displayImage" />
-
-        <!-- Title Input -->
-        <EditText
-            android:id="@+id/titleEditText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/title" />
+            android:orientation="vertical">
 
-        <!-- Description Input -->
-        <EditText
-            android:id="@+id/descriptionEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/description"
-            android:inputType="textMultiLine"
-            android:minLines="3" />
+            <!-- Title Input -->
+            <EditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/title" />
 
-        <!-- Image View -->
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:scaleType="centerCrop"
+            <!-- Description Input -->
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            android:layout_below="@id/descriptionEditText"
-            tools:ignore="ObsoleteLayoutParam" />
+                <EditText
+                    android:id="@+id/descriptionEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/description"
+                    android:inputType="textMultiLine"
+                    android:minLines="3" />
 
+            </ScrollView>
 
+            <!-- Image Selection/Taking -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp">
 
-    </LinearLayout>
+                <Button
+                    android:id="@+id/imageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_image"
+                    android:layout_centerHorizontal="true" />
+
+            </RelativeLayout>
+
+            <!-- Image View -->
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:layout_below="@id/imageButton"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

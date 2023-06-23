@@ -29,13 +29,12 @@
             android:id="@+id/usernameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+            android:textAppearance="@style/BoldTextAppearance"/>
 
         <TextView
             android:id="@+id/timestampTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             android:textColor="@android:color/darker_gray"/>
 

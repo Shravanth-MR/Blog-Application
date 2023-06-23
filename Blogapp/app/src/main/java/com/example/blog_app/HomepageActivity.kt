@@ -19,7 +19,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
-//import kotlin.coroutines.jvm.internal.CompletedContinuation.context
 
 
 class HomepageActivity : AppCompatActivity() {
@@ -27,7 +26,6 @@ class HomepageActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var blogAdapter: BlogAdapter
     private lateinit var auth: FirebaseAuth
-    //    private lateinit var logoutButton: Button
     private lateinit var searchButton: FloatingActionButton
 
     @SuppressLint("MissingInflatedId")
@@ -45,8 +43,6 @@ class HomepageActivity : AppCompatActivity() {
             val intent = Intent(this, Blogpost::class.java)
             startActivity(intent)
         }
-//        auth = Firebase.auth
-//        logoutButton = findViewById(R.id.logout_button)
 
         val profileButton = findViewById<ImageButton>(R.id.profileButton)
 
@@ -60,12 +56,6 @@ class HomepageActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-//        logoutButton.setOnClickListener {
-//            auth.signOut()
-//            val intent = Intent(this, Login::class.java)
-//            startActivity(intent)
-//            finish()
-//        }
         fetchData()
     }
 

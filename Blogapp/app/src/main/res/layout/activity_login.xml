@@ -57,4 +57,15 @@
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"/>
 
+    <TextView
+        android:id="@+id/register_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Don't have an Account? Register here!"
+        android:textStyle="bold"
+        android:layout_below="@+id/login_button"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true" />
+
+
 </RelativeLayout>

@@ -12,6 +12,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -91,16 +92,20 @@ class UpdateProfileActivity : AppCompatActivity() {
     }
 
     private fun loadImageWithGlide(imageUrl: String?, placeholderImage: Int) {
+        val requestOptions = RequestOptions.circleCropTransform()
+            .placeholder(placeholderImage)
+            .error(placeholderImage)
+
         if (!imageUrl.isNullOrEmpty()) {
             Glide.with(this)
                 .load(imageUrl)
-                .placeholder(placeholderImage)
-                .error(placeholderImage)
+                .apply(requestOptions)
                 .into(image)
         } else {
             image.setImageResource(placeholderImage)
         }
     }
+
 
 
     private fun openGallery() {

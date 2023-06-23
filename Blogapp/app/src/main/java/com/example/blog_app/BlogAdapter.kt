@@ -16,6 +16,7 @@ import com.example.blog_app.R
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+
 class BlogAdapter : ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BlogViewHolder {

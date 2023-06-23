@@ -47,6 +47,17 @@
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"/>
 
+    <TextView
+        android:id="@+id/login_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Already have an Account? Login here!"
+        android:textStyle="bold"
+        android:layout_below="@+id/register_button"
+        android:layout_marginTop="34dp"
+        android:layout_centerHorizontal="true" />
+
+
     <Button
         android:id="@+id/register_button"
         android:layout_width="match_parent"
