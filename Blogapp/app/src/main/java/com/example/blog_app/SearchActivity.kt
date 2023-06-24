@@ -9,9 +9,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.blog_app.Blog
 import com.example.blog_app.BlogAdapterSearch
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import java.util.regex.Pattern
+import java.util.Locale
 
 
 class SearchActivity : AppCompatActivity() {
@@ -43,60 +46,77 @@ class SearchActivity : AppCompatActivity() {
     }
 
 
-    private fun performSearch(searchQuery: String) {
+    private fun performSearch(query: String) {
         val db = FirebaseFirestore.getInstance()
         val blogsRef = db.collection("blogs")
 
-        val regexQuery = searchQuery.trim().toLowerCase().replace("\\s+".toRegex(), ".*")
-
-        blogsRef.whereMatchesCaseInsensitive("title", regexQuery)
+        blogsRef.orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                val blogs = mutableListOf<Blog>()
+                val blogList = ArrayList<Blog>()
+                val userIds = HashSet<String>() // Store unique user IDs
+
+                // Collect user IDs from blogs that need profile data
                 for (document in querySnapshot) {
                     val blog = document.toObject(Blog::class.java)
-                    blogs.add(blog)
                     val userId = blog.userId
-                    if (userId != null) {
-                        if (userId.isNotBlank()) {
-                            // Fetch and set user profile data for each non-null userId
-                            db.collection("userProfile").document(userId).get()
-                                .addOnSuccessListener { userProfileDoc ->
-                                    if (userProfileDoc.exists()) {
-                                        val username = userProfileDoc.getString("username")
-                                        val profileImageUrl = userProfileDoc.getString("image_url")
-                                        blog.username = username
-                                        blog.profileImageUrl = profileImageUrl
-                                        adapter.submitList(blogs)
-                                    }
-                                }
-                                .addOnFailureListener { error ->
-                                    // Handle the failure gracefully
-                                    Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        }
+                    if (!userId.isNullOrBlank()) {
+                        userIds.add(userId)
+                    }
+
+                    // Convert the title and description to lowercase for case-insensitive comparison
+                    val lowercaseTitle = blog.title?.lowercase(Locale.ROOT)
+                    val lowercaseDescription = blog.description?.lowercase(Locale.ROOT)
+
+                    // Check if the query matches the lowercase title or description
+                    if (lowercaseTitle?.contains(query.lowercase(Locale.ROOT)) == true ||
+                        lowercaseDescription?.contains(query.lowercase(Locale.ROOT)) == true) {
+                        blogList.add(blog)
                     }
                 }
+
+                // Fetch user profiles in a batched request
+                val userProfilePromises = ArrayList<Task<DocumentSnapshot>>()
+                for (userId in userIds) {
+                    val userProfileRef = db.collection("userProfile").document(userId)
+                    val userProfilePromise = userProfileRef.get()
+                    userProfilePromises.add(userProfilePromise)
+                }
+
+                Tasks.whenAllSuccess<DocumentSnapshot>(userProfilePromises)
+                    .addOnSuccessListener { userProfileSnapshots ->
+                        // Process user profile data
+                        for (userProfileSnapshot in userProfileSnapshots) {
+                            if (userProfileSnapshot.exists()) {
+                                val userId = userProfileSnapshot.id
+                                val username = userProfileSnapshot.getString("username")
+                                val profileImageUrl = userProfileSnapshot.getString("image_url")
+
+                                // Update corresponding blogs with user profile data
+                                for (blog in blogList) {
+                                    if (blog.userId == userId) {
+                                        blog.username = username
+                                        blog.profileImageUrl = profileImageUrl
+                                    }
+                                }
+                            }
+                        }
+
+                        // Update the adapter with the modified blog list
+                        adapter.submitList(blogList)
+                    }
+                    .addOnFailureListener { error ->
+                        showToast("Failed to fetch user profiles: ${error.message}")
+                    }
             }
             .addOnFailureListener { error ->
-                // Handle the error gracefully
-                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                showToast("Failed to perform search: ${error.message}")
             }
     }
 
-    fun Query.whereMatchesCaseInsensitive(field: String, regex: String): Query {
-        return whereGreaterThanOrEqualTo(field, regex.toLowerCase())
-            .whereLessThanOrEqualTo(field, regex.toLowerCase() + "\uf8ff")
-    }
 
-    fun Query.whereMatches(field: String, regex: String): Query {
-        return whereGreaterThanOrEqualTo(field, regex)
-            .whereLessThanOrEqualTo(field, regex + "\uf8ff")
-    }
-
-    fun Query.whereRegex(field: String, regex: String): Query {
-        return whereGreaterThanOrEqualTo(field, regex)
-            .whereLessThanOrEqualTo(field, regex + "\uf8ff")
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
 }

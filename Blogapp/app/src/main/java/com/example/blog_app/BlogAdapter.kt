@@ -52,7 +52,7 @@ class BlogAdapter : ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallba
 
             usernameTextView.text = blog.username
 
-            val timestamp = blog.timestamp?.let { SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.US).format(it) }
+            val timestamp = blog.timestamp?.let { SimpleDateFormat("EEE, MMM dd yyyy - hh:mm a", Locale.US).format(it) }
             timestampTextView.text = timestamp
 
             titleTextView.text = blog.title

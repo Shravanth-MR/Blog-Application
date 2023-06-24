@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 class BlogAdapterSearch : ListAdapter<Blog, BlogAdapterSearch.BlogViewHolder>(BlogDiffCallback()) {
@@ -46,8 +48,12 @@ class BlogAdapterSearch : ListAdapter<Blog, BlogAdapterSearch.BlogViewHolder>(Bl
                 .into(profileImageView)
 
             usernameTextView.text = blog.username
-            timestampTextView.text = blog.timestamp.toString()
+//            timestampTextView.text = blog.timestamp.toString()
             titleTextView.text = blog.title
+
+            val dateFormat = SimpleDateFormat("EEE, MMM dd yyyy, hh:mm a", Locale.getDefault())
+            val formattedDate = dateFormat.format(blog.timestamp)
+            timestampTextView.text = formattedDate
 
             if (blog.image != null) {
                 Glide.with(itemView.context)
@@ -61,8 +67,6 @@ class BlogAdapterSearch : ListAdapter<Blog, BlogAdapterSearch.BlogViewHolder>(Bl
             itemView.setOnClickListener {
                 onItemClickListener?.invoke(blog)
             }
-
-//            val searchQuery: String? =this.searchQuery // get the search query from the user input or wherever it is stored
 
             if (!searchQuery.isNullOrEmpty()) {
                 highlightSearchText(blog)
@@ -86,14 +90,10 @@ class BlogAdapterSearch : ListAdapter<Blog, BlogAdapterSearch.BlogViewHolder>(Bl
                     highlightedText.append("</font>")
                     highlightedText.append(description.substring(endIndex))
                     descriptionTextView.text =
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                            android.text.Html.fromHtml(
-                                highlightedText.toString(),
-                                android.text.Html.FROM_HTML_MODE_LEGACY
-                            )
-                        } else {
-                            android.text.Html.fromHtml(highlightedText.toString())
-                        }
+                        android.text.Html.fromHtml(
+                            highlightedText.toString(),
+                            android.text.Html.FROM_HTML_MODE_LEGACY
+                        )
 
                 } else {
                     descriptionTextView.text = blog.description

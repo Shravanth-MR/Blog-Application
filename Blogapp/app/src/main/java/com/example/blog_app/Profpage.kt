@@ -186,7 +186,7 @@ class Profpage : AppCompatActivity() {
 
     private fun formatDate(timestamp: Date?): String {
         return timestamp?.let {
-            val dateFormat = SimpleDateFormat("MMM dd, yyyy - hh:mm a", Locale.US)
+            val dateFormat = SimpleDateFormat("EEE, MMM dd, yyyy - hh:mm a", Locale.US)
             dateFormat.format(it)
         } ?: ""
     }
