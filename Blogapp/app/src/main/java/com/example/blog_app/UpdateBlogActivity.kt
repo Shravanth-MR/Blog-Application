@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -65,11 +66,12 @@ class UpdateBlogActivity : AppCompatActivity() {
             val updatedDescription = descriptionEditText.text.toString().trim()
 
             if (updatedTitle.isNotEmpty() && updatedDescription.isNotEmpty()) {
-                updateBlog(updatedTitle, updatedDescription)
+                showConfirmationDialog(updatedTitle, updatedDescription)
             } else {
                 Toast.makeText(this, "Please enter title and description", Toast.LENGTH_SHORT).show()
             }
         }
+
 
         cancelButton.setOnClickListener {
             finish()
@@ -79,6 +81,22 @@ class UpdateBlogActivity : AppCompatActivity() {
             openImageChooser()
         }
     }
+
+    private fun showConfirmationDialog(updatedTitle: String, updatedDescription: String) {
+        val dialogBuilder = AlertDialog.Builder(this)
+        dialogBuilder.setMessage("Are you sure you want to update this blog?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                updateBlog(updatedTitle, updatedDescription)
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val alert = dialogBuilder.create()
+        alert.setTitle("Confirmation")
+        alert.show()
+    }
+
 
     private fun openImageChooser() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)

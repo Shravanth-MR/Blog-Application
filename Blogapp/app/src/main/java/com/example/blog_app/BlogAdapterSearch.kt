@@ -1,5 +1,10 @@
 package com.example.blog_app
 
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -77,29 +82,51 @@ class BlogAdapterSearch : ListAdapter<Blog, BlogAdapterSearch.BlogViewHolder>(Bl
         }
 
         private fun highlightSearchText(blog: Blog) {
-            val searchText = searchQuery?.toLowerCase()
-            val description = blog.description?.toLowerCase()
-            if (searchText != null && description != null) {
-                val startIndex = description.indexOf(searchText)
-                if (startIndex != -1) {
-                    val endIndex = startIndex + searchText.length
-                    val highlightedText = StringBuilder()
-                    highlightedText.append(description.substring(0, startIndex))
-                    highlightedText.append("<font color='#FF0000'>")
-                    highlightedText.append(description.substring(startIndex, endIndex))
-                    highlightedText.append("</font>")
-                    highlightedText.append(description.substring(endIndex))
-                    descriptionTextView.text =
-                        android.text.Html.fromHtml(
-                            highlightedText.toString(),
-                            android.text.Html.FROM_HTML_MODE_LEGACY
-                        )
+            val description = blog.description
+            val spannableString = SpannableString(description)
+            val searchQuery = searchQuery?.toLowerCase(Locale.ROOT)
 
+            if (!searchQuery.isNullOrEmpty()) {
+                val lowercaseDescription = description?.toLowerCase(Locale.ROOT)
+                var startIndex = 0
+                if (lowercaseDescription?.startsWith(searchQuery) == true) {
+                    val endIndex = searchQuery.length
+                    spannableString.setSpan(
+                        ForegroundColorSpan(Color.RED),
+                        0,
+                        endIndex,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                 } else {
-                    descriptionTextView.text = blog.description
+                    val lowercaseSearchQuery = searchQuery?.toLowerCase(Locale.ROOT) as String
+                    var index = lowercaseDescription?.indexOf(lowercaseSearchQuery, startIndex) ?: -1
+                    while (index != -1) {
+                        val endIndex = index + lowercaseSearchQuery.length
+                        spannableString.setSpan(
+                            ForegroundColorSpan(Color.RED),
+                            index,
+                            endIndex,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        startIndex++
+                        index = lowercaseDescription?.indexOf(lowercaseSearchQuery, startIndex) ?: -1
+                    }
                 }
             }
+            descriptionTextView.text = spannableString
         }
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
         private class BlogDiffCallback : DiffUtil.ItemCallback<Blog>() {

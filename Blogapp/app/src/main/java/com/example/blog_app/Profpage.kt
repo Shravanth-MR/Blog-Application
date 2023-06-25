@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -157,24 +158,36 @@ class Profpage : AppCompatActivity() {
                 }
 
                 deleteButton.setOnClickListener {
-                    // Handle delete blog button click
-                    val blogId = document.id // Assuming document is the current blog document
+                    val dialogBuilder = AlertDialog.Builder(this)
+                    dialogBuilder.setMessage("Are you sure you want to delete this blog?")
+                        .setPositiveButton("Yes") { dialog, _ ->
+                            // Handle delete blog button click
+                            val blogId = document.id // Assuming document is the current blog document
 
-                    val db = Firebase.firestore
-                    val blogsRef = db.collection("blogs")
+                            val db = Firebase.firestore
+                            val blogsRef = db.collection("blogs")
 
-                    // Delete the blog from Firestore
-                    blogsRef.document(blogId)
-                        .delete()
-                        .addOnSuccessListener {
-                            // Blog deleted successfully, remove the blog item view from the layout
-                            blogPostsLayout.removeView(blogItemView)
+                            // Delete the blog from Firestore
+                            blogsRef.document(blogId)
+                                .delete()
+                                .addOnSuccessListener {
+                                    // Blog deleted successfully, remove the blog item view from the layout
+                                    blogPostsLayout.removeView(blogItemView)
+                                }
+                                .addOnFailureListener { error ->
+                                    showToast("Failed to delete blog: ${error.message}", Toast.LENGTH_SHORT)
+                                    Log.e("Profpage", "Failed to delete blog", error)
+                                }
                         }
-                        .addOnFailureListener { error ->
-                            showToast("Failed to delete blog: ${error.message}", Toast.LENGTH_SHORT)
-                            Log.e("Profpage", "Failed to delete blog", error)
+                        .setNegativeButton("No") { dialog, _ ->
+                            dialog.dismiss()
                         }
+
+                    val alert = dialogBuilder.create()
+                    alert.setTitle("Confirmation")
+                    alert.show()
                 }
+
 
                 // Add the blog item view to the blogPostsLayout
                 blogPostsLayout.addView(blogItemView)

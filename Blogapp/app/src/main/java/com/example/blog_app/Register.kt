@@ -65,7 +65,7 @@ class Register : AppCompatActivity() {
                 }
             }
             .addOnFailureListener{
-                Toast.makeText(this,"Error Occured ${it.localizedMessage}",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Error Occurred ${it.localizedMessage}",Toast.LENGTH_SHORT).show()
             }
     }
 }

@@ -10,10 +10,12 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
@@ -27,6 +29,8 @@ class UpdateProfileActivity : AppCompatActivity() {
     private lateinit var usernameEditText: EditText
     private lateinit var titleEditText: EditText
 
+    private lateinit var auth: FirebaseAuth
+
     private lateinit var storageRef: StorageReference
     private var uri: Uri? = null
 
@@ -35,6 +39,8 @@ class UpdateProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_update_profile)
+
+        auth = Firebase.auth
 
         storageRef = Firebase.storage.reference
 
@@ -56,12 +62,6 @@ class UpdateProfileActivity : AppCompatActivity() {
         titleEditText.setText(previousTitle)
         loadImageWithGlide(previousImageUrl, R.drawable.default_profile_image)
 
-
-//        // Load previous image using previous image URL
-//        Glide.with(this)
-//            .load(previousImageUrl)
-//            .into(image)
-
         galleryImageLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -77,6 +77,10 @@ class UpdateProfileActivity : AppCompatActivity() {
             }
         }
 
+        val deleteAccountButton: Button = findViewById(R.id.deleteAccountButton)
+        deleteAccountButton.setOnClickListener {
+            deleteAccount()
+        }
 
         selectImageButton.setOnClickListener {
             openGallery()
@@ -90,6 +94,66 @@ class UpdateProfileActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private fun deleteAccount() {
+        val user = auth.currentUser
+
+        val dialogBuilder = AlertDialog.Builder(this)
+        dialogBuilder.setMessage("Are you sure you want to delete your account?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                val userId = user?.uid
+                if (userId != null) {
+                    // Delete user data from "blogs" collection
+                    val db = FirebaseFirestore.getInstance()
+                    val blogsRef = db.collection("blogs")
+                    blogsRef.whereEqualTo("userId", userId)
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            for (document in querySnapshot.documents) {
+                                document.reference.delete()
+                            }
+                        }
+                        .addOnFailureListener { error ->
+                            Toast.makeText(this@UpdateProfileActivity, "Failed to delete user's blog entries: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+
+                    // Delete user profile data from "userProfile" collection
+                    val userImagesRef = db.collection("userProfile")
+                    userImagesRef.document(userId)
+                        .delete()
+                        .addOnFailureListener { error ->
+                            Toast.makeText(this@UpdateProfileActivity, "Failed to delete user profile: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+
+                    // Delete user account
+                    user.delete()
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // Account deleted successfully
+                                Toast.makeText(this@UpdateProfileActivity, "Account deleted.", Toast.LENGTH_SHORT).show()
+                                // Redirect to the login page
+                                val intent = Intent(this@UpdateProfileActivity, Login::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                // Failed to delete the account
+                                Toast.makeText(this@UpdateProfileActivity, "Failed to delete account.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                }
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val alert = dialogBuilder.create()
+        alert.setTitle("Confirmation")
+        alert.show()
+    }
+
+
+
 
     private fun loadImageWithGlide(imageUrl: String?, placeholderImage: Int) {
         val requestOptions = RequestOptions.circleCropTransform()

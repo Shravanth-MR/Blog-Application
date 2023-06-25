@@ -3,5 +3,6 @@
 
     <style name="BoldTextAppearance" parent="TextAppearance.AppCompat.Subhead">
         <item name="android:textStyle">bold</item>
+        <item name="colorPrimary">#800080</item>
     </style>
 </resources>
