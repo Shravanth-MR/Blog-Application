@@ -13,7 +13,6 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
@@ -151,13 +150,11 @@ class Blogpost : AppCompatActivity() {
             Glide.with(this)
                 .load(selectedImageUri)
                 .into(imageView)
-
             // Adjust the size of the image view
             imageView.layoutParams.width = STANDARD_IMAGE_WIDTH
             imageView.layoutParams.height = STANDARD_IMAGE_HEIGHT
         }
     }
-
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

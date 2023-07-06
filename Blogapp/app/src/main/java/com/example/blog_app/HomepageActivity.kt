@@ -3,22 +3,15 @@ package com.example.blog_app
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.ktx.Firebase
 
 
 class HomepageActivity : AppCompatActivity() {
@@ -32,7 +25,6 @@ class HomepageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
-
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         blogAdapter = BlogAdapter()
@@ -58,17 +50,13 @@ class HomepageActivity : AppCompatActivity() {
 
         fetchData()
     }
-
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
-
-
     private fun fetchData() {
         val db = FirebaseFirestore.getInstance()
         val blogsRef = db.collection("blogs")
         val userProfileRef = db.collection("userProfile")
-
         // Listen for real-time updates on the blogs collection
         blogsRef.orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { querySnapshot, error ->
@@ -76,13 +64,11 @@ class HomepageActivity : AppCompatActivity() {
                     showToast("Failed to fetch blog data: ${error.message}")
                     return@addSnapshotListener
                 }
-
                 if (querySnapshot != null) {
                     val blogList = ArrayList<Blog>()
                     for (document in querySnapshot) {
                         val blog = document.toObject(Blog::class.java)
                         blogList.add(blog)
-
                         // Retrieve the user profile in real-time
                         userProfileRef.document(blog.userId!!).addSnapshotListener { userDocument, userError ->
                             if (userError != null) {
@@ -99,19 +85,11 @@ class HomepageActivity : AppCompatActivity() {
                             }
                         }
                     }
-
-                    // Submit the list outside the loop
                     blogAdapter.submitList(blogList)
                 }
             }
-
         blogAdapter.setOnItemClickListener { blog ->
             showToast("Created by: ${blog.username}")
-
-            // Open the blog post in a new activity
-            // val intent = Intent(this, BlogViewActivity::class.java)
-            // intent.putExtra("blog", blog)
-            // startActivity(intent)
         }
     }
 

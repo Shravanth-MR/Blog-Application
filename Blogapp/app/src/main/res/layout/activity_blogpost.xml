@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:layout_marginTop="10dp"
         android:padding="10dp">
 
         <!-- Left Arrow Button -->
@@ -19,9 +20,21 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:background="@null"
+
             android:src="@drawable/ic_back_arrow" />
 
         <!-- Post Button -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="Blog Post"
+            android:layout_marginLeft="120dp"
+
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
         <Button
             android:id="@+id/postButton"
             android:layout_width="wrap_content"
